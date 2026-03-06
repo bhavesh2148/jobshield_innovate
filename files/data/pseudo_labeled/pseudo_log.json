@@ -1,0 +1,37 @@
+[
+  {
+    "timestamp": "2026-03-04T19:29:48.966707",
+    "text_snippet": "data entry executive work from home [SEP] we are urgently hiring candidates for simple data entry work from home. no prior experience required. earn up to 60,000 monthly by working just 2 3 hours daily. limited vacancies available. immediate joining required. to apply, send your resume to globaltech",
+    "label": 1,
+    "confidence": 99.5,
+    "validated": true
+  },
+  {
+    "timestamp": "2026-03-04T19:31:52.718939",
+    "text_snippet": "software developer backend [SEP] infosys ltd is seeking a backend software developer to join our technology team. the candidate will be responsible for developing scalable rest apis and maintaining backend services. responsibilities design and develop backend modules write clean, maintainable code c",
+    "label": 0,
+    "confidence": 99.7,
+    "validated": true
+  },
+  {
+    "timestamp": "2026-03-05T05:10:48.837670",
+    "text_snippet": "amazon work from home job [SEP] not mentioned [SEP] no requirements",
+    "label": 1,
+    "confidence": 95.0,
+    "validated": true
+  },
+  {
+    "timestamp": "2026-03-05T05:28:48.274803",
+    "text_snippet": "junior software developer [SEP] technova solutions is looking for a motivated junior software developer to join our growing engineering team. in this role, you will assist in building and maintaining web applications, collaborating with senior developers, and contributing to code reviews and feature",
+    "label": 0,
+    "confidence": 99.7,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-03-05T05:31:25.270387",
+    "text_snippet": "data entry executive work from home [SEP] we are urgently hiring candidates for simple data entry work from home. no prior experience required. earn up to 60,000 monthly by working just 2 3 hours daily. limited vacancies available. immediate joining required. to apply, send your resume to globaltech",
+    "label": 1,
+    "confidence": 99.5,
+    "validated": false
+  }
+]
