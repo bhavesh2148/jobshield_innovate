@@ -33,5 +33,26 @@
     "label": 1,
     "confidence": 99.5,
     "validated": false
+  },
+  {
+    "timestamp": "2026-03-22T13:21:55.888299",
+    "text_snippet": "senior hr business partner [SEP] talentedge consulting is a boutique hr consulting firm specializing in talent management solutions for mid-sized organizations. we partner with leading companies across it, bfsi, and manufacturing sectors. [SEP] talentedge consulting is looking for an experienced sen",
+    "label": 0,
+    "confidence": 99.8,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-03-22T13:23:39.133997",
+    "text_snippet": "data entry operator work from home [SEP] urgent hiring! earn up to 8,000 per week working from home! no experience required. be your own boss and work flexible hours from anywhere in the world. we are hiring immediately for online data entry positions. you will be paid daily via wire transfer. simpl",
+    "label": 1,
+    "confidence": 99.6,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-03-22T13:30:22.673593",
+    "text_snippet": "data entry operator work from home [SEP] urgent hiring! earn up to 8,000 per week working from home! no experience required. be your own boss and work flexible hours from anywhere in the world. we are hiring immediately for online data entry positions. you will be paid daily via wire transfer. simpl",
+    "label": 1,
+    "confidence": 99.6,
+    "validated": false
   }
 ]
