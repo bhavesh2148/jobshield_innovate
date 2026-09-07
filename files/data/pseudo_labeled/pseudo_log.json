@@ -54,5 +54,33 @@
     "label": 1,
     "confidence": 99.6,
     "validated": false
+  },
+  {
+    "timestamp": "2026-07-29T16:39:26.551952",
+    "text_snippet": "data entry operator [SEP] urgent hiring! earn up to 8,000 per week working from home! no experience required. be your own boss and work flexible hours from anywhere in the world. we are hiring immediately for online data entry positions. you will be paid daily via wire transfer. simply register now ",
+    "label": 1,
+    "confidence": 99.6,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-07-29T16:41:34.595309",
+    "text_snippet": "full stack developer [SEP] infosys limited is a global leader in technology services and consulting, headquartered in bengaluru, india. founded in 1981, infosys operates in 50 countries with over 300,000 employees. we deliver end-to-end digital transformation services including cloud, ai, cybersecur",
+    "label": 0,
+    "confidence": 99.8,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-08-08T03:56:34.407032",
+    "text_snippet": "data entry operator [SEP] urgent hiring! earn up to 8,000 per week working from home! no experience required. be your own boss and work flexible hours from anywhere in the world. we are hiring immediately for online data entry positions. you will be paid daily via wire transfer. simply register now ",
+    "label": 1,
+    "confidence": 99.6,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-08-08T03:58:25.082443",
+    "text_snippet": "full stack developer [SEP] infosys limited is a global leader in technology services and consulting, headquartered in bengaluru, india. founded in 1981, infosys operates in 50 countries with over 300,000 employees. we deliver end-to-end digital transformation services including cloud, ai, cybersecur",
+    "label": 0,
+    "confidence": 99.8,
+    "validated": false
   }
 ]
