@@ -1,15 +1,14 @@
-# 🛡️ JobShield: AI-Driven CyberSecurity for Online Recruitment Fraud
+# ️ JobShield: AI-Driven CyberSecurity for Online Recruitment Fraud
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-brightgreen.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 **A CyberSecurity and Threat Defense system that detects fraudulent job postings and social engineering scams instantly — 100% local, zero cloud dependency.**
 
 ---
 
-##  Overview
+## 📖 Overview
 
 **JobShield** is an AI-powered **CyberSecurity application** designed to combat Online Recruitment Fraud (ORF). Fraudulent job postings are a growing vector for phishing, identity theft (stealing Aadhaar, PAN, and bank details), and financial extortion. 
 
@@ -39,7 +38,7 @@ Combines the strengths of three distinct models using Nelder-Mead auto-tuned sof
 - **Vectorized Scam Database:** Stores embeddings of confirmed fake jobs using SBERT (all-MiniLM-L6-v2).
 - **Rephrased Scam Detection:** If a new posting has a cosine similarity > 0.85 to a known scam in the FAISS index, the threat score is automatically boosted — catching variants of scams the classifier hasn't seen before.
 
-### ️ Full Explainability (XAI) for Auditing
+### 🛡️ Full Explainability (XAI) for Auditing
 - **SHAP Values:** Mathematically traces every prediction back to specific features.
 - **Phrase Highlighting:** Suspicious words and social engineering triggers are highlighted directly in the job text.
 - **Plain English Audit Trail:** Users get clear, verifiable reasons for the verdict, building trust and enabling manual review.
@@ -86,30 +85,50 @@ The pipeline processes every job posting through four sequential security layers
 
 ---
 
-## 📦 Installation & Usage
+## 📦 Installation & Setup
 
 ### Prerequisites
-- Python 3.10 - 3.12
-- Node.js & npm
-- 8GB RAM minimum (16GB recommended)
+- **Python:** 3.10 - 3.12
+- **Node.js:** v16 or higher (includes npm)
+- **Hardware:** 8GB RAM minimum (16GB recommended for smooth ML inference)
 
-### Backend Setup
+### 1. Backend Setup (FastAPI)
 ```bash
 # Clone the repository
 git clone https://github.com/introxxzz/jobshield.git
-cd jobshield/backend
+cd jobshield
 
-# Create virtual environment and install dependencies
+# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows use: venv\Scripts\activate
+
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Start the FastAPI server
+# Navigate to the backend folder and start the server
+cd backend
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
-### Frontend Setup
+The backend API will now be running at http://localhost:8000. Keep this terminal open.
+
+2. Frontend Setup (React + Vite)
+
+# Open a NEW terminal window (keep the backend running in the first one)
+# Navigate to the frontend directory from the root folder
 cd jobshield/frontend
+
+# Install Node.js dependencies
 npm install
+
+# Start the Vite development server
 npm run dev
 
-Open your browser and navigate to http://localhost:5173
+The frontend application will be running at http://localhost:5173 (or the port specified in your terminal output).
+
+3. Running the Application
+
+1. Ensure both the Backend (port 8000) and Frontend (port 5173) servers are running concurrently.
+2. Open your web browser and navigate to http://localhost:5173.
+3. Navigate to the Analyze Dashboard, paste a suspicious job posting, and click to get an instant threat assessment.
+
+Defending job seekers from cyber fraud and social engineering, one posting at a time. 🛡️
