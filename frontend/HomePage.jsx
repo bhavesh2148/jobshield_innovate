@@ -12,6 +12,7 @@ export default function HomePage({ onResult }) {
   const [ocrStatus, setOcrStatus] = useState(null);  // null | 'success' | 'unavailable' | 'error'
   const [ocrError, setOcrError] = useState("");
   const [ocrInstallGuide, setOcrInstallGuide] = useState("");
+  const [detectedMeta, setDetectedMeta] = useState(null);
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
@@ -32,6 +33,63 @@ export default function HomePage({ onResult }) {
   });
 
   const update = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  // ── Auto-Parse Metadata from Job Specification Text ───────
+  const detectMetadata = (text) => {
+    if (!text || text.length < 15) return null;
+    const detected = {};
+
+    const titleMatch = text.match(/(?:Job\s*Title|Position\s*Title|Role|Designation)[\s:]+([^\n\r]+)/i);
+    if (titleMatch) detected.title = titleMatch[1].split(/\s+(?:Company|Salary|Employment|Experience|Has|Remote|Job|Requirements)[\s:]+/i)[0].trim();
+
+    const companyMatch = text.match(/(?:Company\s*Name|Employer|Organization|Hiring\s*Company)[\s:]+([^\n\r]+)/i);
+    if (companyMatch) detected.company = companyMatch[1].split(/\s+(?:Salary|Employment|Experience|Has|Remote|Job|Requirements)[\s:]+/i)[0].trim();
+
+    const logoMatch = text.match(/(?:Has\s*Company\s*Logo|Company\s*Logo|Has\s*Logo)[\s:]+([^\n\r]+)/i);
+    if (logoMatch) {
+      const val = logoMatch[1].toLowerCase();
+      detected.has_company_logo = (val.includes("☑") || val.includes("[x]") || val.includes("yes") || val.includes("true") || val.includes("1")) ? 1 : 0;
+    }
+
+    const questionsMatch = text.match(/(?:Has\s*Screening\s*Questions|Screening\s*Questions|Has\s*Questions)[\s:]+([^\n\r]+)/i);
+    if (questionsMatch) {
+      const val = questionsMatch[1].toLowerCase();
+      detected.has_questions = (val.includes("☑") || val.includes("[x]") || val.includes("yes") || val.includes("true") || val.includes("1")) ? 1 : 0;
+    }
+
+    const salaryMatch = text.match(/(?:Salary\s*Range|Compensation|Pay\s*Range|Salary)[\s:]+([^\n\r]+)/i);
+    if (salaryMatch) detected.salary_range = salaryMatch[1].split(/\s+(?:Employment|Experience|Has|Remote|Job|Requirements)[\s:]+/i)[0].trim();
+
+    const expMatch = text.match(/(?:Experience\s*Required|Required\s*Experience|Experience\s*Level)[\s:]+([^\n\r]+)/i);
+    if (expMatch) detected.required_experience = expMatch[1].split(/\s+(?:Has|Remote|Job|Requirements)[\s:]+/i)[0].trim();
+
+    const remoteMatch = text.match(/(?:Remote\s*\/\s*Telecommute|Remote\s*Work|Telecommuting|Remote)[\s:]+([^\n\r]+)/i);
+    if (remoteMatch) {
+      const val = remoteMatch[1].toLowerCase();
+      detected.telecommuting = (val.includes("☑") || val.includes("[x]") || val.includes("yes") || val.includes("true") || val.includes("1")) ? 1 : 0;
+    }
+
+    return Object.keys(detected).length > 0 ? detected : null;
+  };
+
+  const handleDescriptionChange = (newText) => {
+    update("description", newText);
+    const meta = detectMetadata(newText);
+    if (meta) {
+      setDetectedMeta(meta);
+      setForm(prev => {
+        const next = { ...prev, description: newText };
+        if (meta.title && !prev.title) next.title = meta.title;
+        if (meta.company && !prev.company) next.company = meta.company;
+        if (meta.salary_range && !prev.salary_range) next.salary_range = meta.salary_range;
+        if (meta.required_experience && !prev.required_experience) next.required_experience = meta.required_experience;
+        if (meta.has_company_logo !== undefined && prev.has_company_logo === 0) next.has_company_logo = meta.has_company_logo;
+        if (meta.has_questions !== undefined && prev.has_questions === 0) next.has_questions = meta.has_questions;
+        if (meta.telecommuting !== undefined && prev.telecommuting === 0) next.telecommuting = meta.telecommuting;
+        return next;
+      });
+    }
+  };
 
   // ── Phase 6: OCR Upload Handler ───────────────────────────
   const runOcr = async (file) => {
@@ -183,9 +241,74 @@ export default function HomePage({ onResult }) {
             placeholder="Paste the raw job description, recruiter outreach email, WhatsApp/Telegram message, or interview invitation here…"
             style={{ minHeight: 220, lineHeight: 1.6, fontSize: "0.9rem" }}
             value={form.description}
-            onChange={e => update("description", e.target.value)}
+            onChange={e => handleDescriptionChange(e.target.value)}
           />
         </div>
+
+        {/* Real-time Ingestion Metadata Detection Banner */}
+        {detectedMeta && Object.keys(detectedMeta).length > 0 && (
+          <div style={{
+            background: "rgba(6, 182, 212, 0.08)",
+            border: "1px solid rgba(6, 182, 212, 0.3)",
+            borderRadius: "var(--radius-sm)",
+            padding: "0.75rem 1rem",
+            marginBottom: "0.85rem",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}>
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.72rem",
+              color: "var(--accent)",
+              fontWeight: 600,
+              letterSpacing: "0.03em"
+            }}>
+              <span>✨ AUTO-DETECTED LISTING SPEC METADATA</span>
+              <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>Auto-populated into ML feature vector</span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 2 }}>
+              {detectedMeta.company && (
+                <span className="badge" style={{ background: "rgba(0,0,0,0.45)", border: "1px solid rgba(6,182,212,0.3)", fontSize: "0.74rem", color: "var(--text)" }}>
+                  🏢 {detectedMeta.company}
+                </span>
+              )}
+              {detectedMeta.title && (
+                <span className="badge" style={{ background: "rgba(0,0,0,0.45)", border: "1px solid var(--border)", fontSize: "0.74rem", color: "var(--text)" }}>
+                  💼 {detectedMeta.title}
+                </span>
+              )}
+              {detectedMeta.has_company_logo === 1 && (
+                <span className="badge" style={{ background: "rgba(16, 185, 129, 0.18)", border: "1px solid rgba(16, 185, 129, 0.4)", fontSize: "0.74rem", color: "var(--safe)", fontWeight: 600 }}>
+                  ✓ Company Logo Verified
+                </span>
+              )}
+              {detectedMeta.has_questions === 1 && (
+                <span className="badge" style={{ background: "rgba(16, 185, 129, 0.18)", border: "1px solid rgba(16, 185, 129, 0.4)", fontSize: "0.74rem", color: "var(--safe)", fontWeight: 600 }}>
+                  ✓ Screening Questions
+                </span>
+              )}
+              {detectedMeta.salary_range && (
+                <span className="badge" style={{ background: "rgba(0,0,0,0.45)", border: "1px solid var(--border)", fontSize: "0.74rem", color: "var(--text-dim)" }}>
+                  💰 {detectedMeta.salary_range}
+                </span>
+              )}
+              {detectedMeta.required_experience && (
+                <span className="badge" style={{ background: "rgba(0,0,0,0.45)", border: "1px solid var(--border)", fontSize: "0.74rem", color: "var(--text-dim)" }}>
+                  ⏱ {detectedMeta.required_experience}
+                </span>
+              )}
+              {detectedMeta.telecommuting === 1 && (
+                <span className="badge" style={{ background: "rgba(0,0,0,0.45)", border: "1px solid var(--border)", fontSize: "0.74rem", color: "var(--text-dim)" }}>
+                  🌐 Remote Role
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Screenshot / Artifact Ingestion Zone */}
         <div 
@@ -351,6 +474,63 @@ export default function HomePage({ onResult }) {
                   value={form.company}
                   onChange={e => update("company", e.target.value)}
                 />
+              </div>
+              <div className="field-group" style={{ marginBottom: 0 }}>
+                <label className="field-label">Stated Salary Range</label>
+                <input
+                  className="field-input"
+                  placeholder="e.g. $70,000–$95,000/year"
+                  value={form.salary_range}
+                  onChange={e => update("salary_range", e.target.value)}
+                />
+              </div>
+              <div className="field-group" style={{ marginBottom: 0 }}>
+                <label className="field-label">Experience Required</label>
+                <input
+                  className="field-input"
+                  placeholder="e.g. Associate level / 1-3 years"
+                  value={form.required_experience}
+                  onChange={e => update("required_experience", e.target.value)}
+                />
+              </div>
+
+              {/* Explicit Verification Toggles */}
+              <div style={{
+                gridColumn: "1 / -1",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "1.25rem",
+                paddingTop: "0.75rem",
+                marginTop: "0.25rem",
+                borderTop: "1px solid var(--border-subtle)"
+              }}>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "var(--text-dim)", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={form.has_company_logo === 1}
+                    onChange={e => update("has_company_logo", e.target.checked ? 1 : 0)}
+                    style={{ accentColor: "var(--accent)" }}
+                  />
+                  <span>Has Verified Company Logo</span>
+                </label>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "var(--text-dim)", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={form.has_questions === 1}
+                    onChange={e => update("has_questions", e.target.checked ? 1 : 0)}
+                    style={{ accentColor: "var(--accent)" }}
+                  />
+                  <span>Has Application Screening Questions</span>
+                </label>
+                <label style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: "0.82rem", color: "var(--text-dim)", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={form.telecommuting === 1}
+                    onChange={e => update("telecommuting", e.target.checked ? 1 : 0)}
+                    style={{ accentColor: "var(--accent)" }}
+                  />
+                  <span>Remote / Telecommuting Role</span>
+                </label>
               </div>
             </div>
           )}

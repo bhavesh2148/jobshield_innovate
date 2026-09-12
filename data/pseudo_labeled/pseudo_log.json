@@ -124,5 +124,19 @@
     "label": 0,
     "confidence": 96.2,
     "validated": false
+  },
+  {
+    "timestamp": "2026-09-12T15:39:54.750543",
+    "text_snippet": "full stack developer [SEP] infosys limited enterprise operations and corporate profile. [SEP] infosys limited is hiring full stack developers for our digital experience practice in chennai. you will design and develop scalable web applications for enterprise clients using react.js and node.js. you w",
+    "label": 0,
+    "confidence": 95.4,
+    "validated": false
+  },
+  {
+    "timestamp": "2026-09-12T16:40:29.917096",
+    "text_snippet": "full stack developer [SEP] infosys limited enterprise operations and corporate profile. [SEP] infosys limited is hiring full stack developers for our digital experience practice in chennai. you will design and develop scalable web applications for enterprise clients using react.js and node.js. you w",
+    "label": 0,
+    "confidence": 95.4,
+    "validated": false
   }
 ]

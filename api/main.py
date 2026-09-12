@@ -17,6 +17,7 @@ from api.schemas import (
     RetrainRequest, RetrainResponse,
     AdminStats, RiskLevel, RecommendationAction,
     ThreatCategory, ThreatProfileResponse,
+    ParseJobTextRequest, ParseJobTextResponse,
 )
 from api.state import AppState
 
@@ -89,6 +90,18 @@ app.add_middleware(
 )
 
 
+# ── POST /parse-text ──────────────────────────────────────────
+@app.post("/parse-text", response_model=ParseJobTextResponse)
+def parse_text_endpoint(req: ParseJobTextRequest):
+    """
+    Real-time text parsing endpoint that extracts structured recruitment metadata
+    (Title, Company, Logo, Questions, Salary, Experience) from raw job description text.
+    """
+    from utils.job_parser import parse_raw_job_text
+    parsed = parse_raw_job_text(req.text)
+    return ParseJobTextResponse(**parsed)
+
+
 # ── Health ────────────────────────────────────────────────────
 @app.get("/health")
 def health_check():
@@ -110,15 +123,22 @@ async def predict(job: JobInput, background_tasks: BackgroundTasks):
     if not AppState.ready:
         raise HTTPException(503, "Models not loaded yet")
 
-    from utils.feature_extractor import extract_features_from_input, build_combined_text
+    from utils.feature_extractor import extract_features_from_input, build_combined_text, enrich_job_dict
     from explainability.explainer import highlight_suspicious_phrases
     from security.artifact_extractor import extract_artifacts
     from security.rule_engine import evaluate_security_rules
 
-    job_dict = job.dict()
+    # Automatically enrich structured metadata if missing from raw description text
+    job_dict = enrich_job_dict(job.dict())
 
     # 1. Raw Artifact Extraction (preserves @, :, /, $, URLs, formatting)
-    raw_content = "\n".join(filter(None, [job.title, job.company, job.description, job.requirements, job.benefits]))
+    raw_content = "\n".join(filter(None, [
+        job_dict.get("title") or job.title,
+        job_dict.get("company") or job.company,
+        job.description,
+        job_dict.get("requirements") or job.requirements,
+        job_dict.get("benefits") or job.benefits
+    ]))
     artifacts = extract_artifacts(raw_content)
 
     # 2. Deterministic Security Rule Evaluation

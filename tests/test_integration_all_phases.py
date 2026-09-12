@@ -2,6 +2,10 @@
 JobShield Full System Integration Test — All Phases (0-6)
 Verifies every phase works in sync in a single request/response cycle.
 """
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 from fastapi.testclient import TestClient
 from api.main import app
 

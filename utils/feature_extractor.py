@@ -41,6 +41,32 @@ def _load_artifacts():
                 _feature_names = json.load(f)
 
 
+def enrich_job_dict(job_input: dict) -> dict:
+    """
+    Enriches job_input with automatically parsed metadata from description
+    if structured fields are empty or default.
+    """
+    from utils.job_parser import parse_raw_job_text
+    desc = str(job_input.get("description", "") or "")
+    if not desc.strip():
+        return job_input
+
+    parsed = parse_raw_job_text(desc)
+    enriched = dict(job_input)
+
+    for key, parsed_val in parsed.items():
+        user_val = enriched.get(key)
+        # If user did not provide an explicit value or left it default 0, populate from parsed
+        if user_val is None or user_val == "" or (isinstance(user_val, int) and user_val == 0 and parsed_val == 1):
+            if parsed_val:
+                enriched[key] = parsed_val
+
+    if parsed.get("description") and parsed["description"] != desc and len(parsed["description"]) >= 20:
+        enriched["clean_description"] = parsed["description"]
+
+    return enriched
+
+
 def extract_features_from_input(job_input: dict) -> np.ndarray:
     """
     Convert raw API input dictionary to a scaled structured
@@ -54,6 +80,7 @@ def extract_features_from_input(job_input: dict) -> np.ndarray:
         has_company_logo, has_questions
     """
     _load_artifacts()
+    job_input = enrich_job_dict(job_input)
 
     def safe_str(key, default=""):
         return str(job_input.get(key, default) or default)
@@ -142,11 +169,16 @@ def build_combined_text(job_input: dict) -> str:
     Mirrors the preprocessing pipeline.
     """
     from data.preprocessor import clean_text
-    text_fields = ["title", "company_profile", "description", "requirements", "benefits"]
+    job_input = enrich_job_dict(job_input)
+    text_fields = ["title", "company_profile", "clean_description", "description", "requirements", "benefits"]
     parts = []
+    seen_texts = set()
     for field in text_fields:
+        if field == "description" and "clean_description" in job_input:
+            continue
         val = str(job_input.get(field, "") or "")
         cleaned = clean_text(val)
-        if cleaned:
+        if cleaned and cleaned not in seen_texts:
             parts.append(cleaned)
+            seen_texts.add(cleaned)
     return " [SEP] ".join(parts)

@@ -243,3 +243,24 @@ class AdminStats(BaseModel):
     drift_detected: bool
     drift_events: list[dict]
     feedback_count: int
+
+
+# ── Real-time Text Ingestion Parser Schemas ───────────────────
+class ParseJobTextRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="Raw job posting text to parse")
+
+
+class ParseJobTextResponse(BaseModel):
+    title: str = ""
+    company: str = ""
+    salary_range: str = ""
+    employment_type: str = ""
+    required_experience: str = ""
+    has_company_logo: int = 0
+    has_questions: int = 0
+    telecommuting: int = 0
+    description: str = ""
+    requirements: str = ""
+    benefits: str = ""
+    company_profile: str = ""
+

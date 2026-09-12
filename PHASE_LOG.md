@@ -561,9 +561,66 @@ After installation, restart the JobShield API server.
 ### 10.4 Phase 10 — Local Gmail Ingestion (Stretch)
 * A local client utility allowing users to feed suspicious recruitment emails directly from their desktop client into the unified pipeline without transmitting emails to third-party servers.
 
+
 ---
 
-## 9. Summary Scorecard & Verification Matrix
+## 9. Engineering Learnings & Field Diagnostics: Ingestion Inconsistencies & Tabular Defaults
+
+### 9.1 Case Study: The Legitimate Job False-Positive Phenomenon (Infosys Limited)
+During real-world deployment testing, a genuine enterprise recruitment posting for **Infosys Limited** (Full Stack Developer, Chennai) was submitted to JobShield:
+```text
+Field Value Job Title Full Stack Developer Company Name Infosys Limited Salary Range $70,000–$95,000/year 
+Employment Type Full-time Experience Required Associate level Has Company Logo ☑ Yes 
+Has Screening Questions ☑ Yes Remote / Telecommute ☐ No Job Description: Infosys Limited is hiring...
+```
+* **Observed Result**: JobShield flagged the listing with **78.3% Certainty as HIGH RISK / FAKE** (Composite Risk Index: 78/100).
+* **Threat Assessment Explanation**:
+  * `Missing or very thin company profile` (Elevates Risk)
+  * `No company logo present` (Elevates Risk)
+  * `Cataloged scam signature proximity: 57%`
+
+### 9.2 Root Cause Analysis (The Tabular Default-0 Dilemma)
+JobShield combines two disparate paradigms:
+1. **Unstructured NLP (DistilBERT)**: Reads semantic content and context.
+2. **Structured Tabular ML (XGBoost & Logistic Regression)**: Evaluates 15 tabular features derived from the historical EMSCAD benchmark dataset.
+
+In the historical training distribution, **over 90% of fraudulent recruitment postings lack a company logo, contain zero screening questions, and omit a corporate profile**. As a result, the trained XGBoost model assigned extremely high positive SHAP values (risk multipliers) to any job where `has_logo == 0` or `has_company_profile == 0`.
+
+When users interact with JobShield's streamlined single-textarea console:
+* The user pastes the entire job spec—including metadata headers (`Company Name: Infosys Limited`, `Has Company Logo: Yes`)—into the `description` field.
+* The frontend JSON payload sent to `POST /predict` defaulted all non-textarea fields:
+  ```json
+  {
+    "title": "",
+    "company": "",
+    "description": "<entire raw pasted text>",
+    "has_company_logo": 0,
+    "has_questions": 0,
+    "company_profile": "",
+    "required_experience": ""
+  }
+  ```
+* Because `has_company_logo` and `company_profile` were received as `0` and `""`, the tabular model heavily penalized the posting, completely overwhelming the benign NLP score and triggering a false-positive HIGH RISK posture.
+
+### 9.3 Empirical Proof: Raw Paste vs. Structured Submission
+A controlled diagnostic test (`scratch/diagnose_case.py`) verified the disparity on the exact same posting:
+
+| Submission Mode | Outcome | Risk Score | Confidence | Top SHAP Attribution Factors |
+| :--- | :--- | :--- | :--- | :--- |
+| **A: Raw Ingestion Paste** *(All text in description)* | **FAKE** | **83 / 100** | **83.4%** | `Missing company profile (+1.73)`<br>`No company logo present (+0.37)` |
+| **B: Structured Metadata** *(Parsed fields populated)* | **REAL** | **4 / 100** | **96.2% REAL** | `Experience req specified (-1.49)`<br>`Industry alignment (-0.95)`<br>`Company profile present (-0.76)` |
+
+### 9.4 The Permanent Architectural Resolution
+1. **Intelligent Ingestion Parser (`utils/job_parser.py`)**:
+   * Inspects unstructured text for common recruitment portal patterns (`Company Name:`, `Salary Range:`, `Experience:`, `Has Company Logo: [☑/Yes]`, etc.).
+   * Extracts and hydrates the structured feature vector automatically when raw text is submitted.
+2. **Frontend Metadata Verification Controls**:
+   * Interactive toggles for `Company Logo Present` and `Screening Questions Present` in the ingestion UI.
+   * Real-time metadata detection chips showing investigators exactly which corporate attributes JobShield recognized.
+
+---
+
+## 10. Summary Scorecard & Verification Matrix
 
 | Component / Phase | Subsystem | Status | Key Artifacts & Files | Verification Status |
 |---|---|---|---|---|
