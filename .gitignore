@@ -65,3 +65,16 @@ memory/*.pkl
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ── Local Developer Reference Logs & Internal Notes ──────────────
+PHASE_LOG.md
+LEARNINGS.md
+README_DEV.md
+frontend/FIXES_APPLIED.md
+frontend/IMPLEMENTATION_SUMMARY.md
+frontend/PAGE_FLOW.md
+frontend/PHASE1_IMPLEMENTATION.md
+frontend/QUICK_REFERENCE.md
+frontend/SETUP.md
+data/feedback.json
+data/pseudo_labeled/pseudo_log.json
