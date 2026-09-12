@@ -3,6 +3,10 @@ JobShield Full System Integration Test — All Phases (0-6)
 Verifies every phase works in sync in a single request/response cycle.
 """
 import sys
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
