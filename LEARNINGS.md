@@ -167,9 +167,37 @@ Generic classifications fail enterprise security analysts and confuse candidates
 
 ---
 
-## 9. Comprehensive Project Status & Remaining Roadmap Assessment
+## 9. Phase 7: Passive Local Domain & Brand Impersonation Intel
 
-### What Is Fully Complete (Phases 0 through 6)
+### The Mathematical Nuance of Shannon Hostname Entropy
+* **Theoretical Maximum**: For a string of length $N$ containing distinct characters, the maximum possible Shannon entropy is:
+  $$H_{\max} = \log_2(N)$$
+  For an 11-character hostname stem (`qx9z4k2b7v1`), the theoretical ceiling is $\log_2(11) \approx 3.459$. Setting arbitrary high thresholds like $3.85$ misses disposable DGAs under 15 characters.
+* **Calibrated DGA Detection Rule**:
+  * Stems with length $\ge 8$, entropy $\ge 3.2$, and alphanumeric digit/letter mixing reliably distinguish machine-generated disposable domains from natural human-readable brand names.
+
+### Homoglyphs vs. Leetspeak Impersonation
+* Adversaries exploit Unicode confusables (e.g., Cyrillic `о` `\u043e`, Latin dotless `ı` `\u0131`) and ASCII leetspeak substitutions (`0` for `o`, `1` for `l`).
+* Two-step detection:
+  1. Normalized equivalence test: `normalize_homoglyphs(stem) == brand and stem != brand` directly catches exact spoofing (`inf0sys` $\rightarrow$ `infosys`).
+  2. Damerau-Levenshtein edit distance captures transpositions and single-character permutations (`micros0ft.com`, `amazn.com`).
+
+---
+
+## 10. Phase 8: Chrome Extension (In-Browser Ingestion Interface)
+
+### Manifest V3 & Local Privacy Guarantee
+* **The Constraint**: Candidate web browsing activity (jobs viewed on LinkedIn/Indeed, private email communications on Gmail) must never be transmitted to external servers or cloud analytics.
+* **Architecture Solution**:
+  1. Chrome Extension Manifest V3 scoped exclusively to `host_permissions: ["http://localhost:8000/*", "http://127.0.0.1:8000/*"]`.
+  2. The background service worker acts as a local proxy, forwarding context-menu selections to the local FastAPI `/predict` endpoint.
+  3. The content script injects a floating scanner button and an editorial glassmorphic threat drawer directly into the active tab DOM, displaying real-time risk scores, MITRE ATT&CK tags, and security findings without candidates leaving the webpage.
+
+---
+
+## 11. Comprehensive Project Status & Remaining Roadmap
+
+### What Is Fully Complete (Phases 0 through 8)
 * **Phase 0: Boundary Hardening & Security Foundations** (Pydantic validation, 4-tier threat policy, constant-time secrets).
 * **Phase 1: Dual-Interface Web Experience** (FastAPI backend + Vite React editorial dark-mode frontend with threat dossiers and SHAP visualization).
 * **Phase 2: Security Artifact Extraction** (Zero-leakage extraction of emails, URLs, domains, phones, crypto addresses, and P2P handles).
@@ -177,17 +205,13 @@ Generic classifications fail enterprise security analysts and confuse candidates
 * **Phase 4: Evidence & Risk Correlation Engine** (Non-linear risk escalation and unified finding synthesizers).
 * **Phase 5: Threat Taxonomy & MITRE ATT&CK Mapping** (Automated classification of threat profiles and MITRE tags).
 * **Phase 6: Local OCR Ingestion & Real-Time Parsing** (Offline Tesseract OCR + regex key-value/checkbox auto-enrichment).
+* **Phase 7: Passive Local Domain & Brand Impersonation Intel** (`security/domain_intel.py`, Damerau-Levenshtein typo-squatting, homoglyph normalization, Shannon entropy DGA detection).
+* **Phase 8: Google Chrome Browser Extension** (`extension/` Manifest V3, scrapers for LinkedIn/Indeed/Glassdoor/Gmail, context-menu scanner, in-page floating threat drawer).
 
-### What Remains on the Master Roadmap
-Beyond the **Chrome Browser Extension**, there were two additional components previously designed in the system blueprint:
+### Remaining Tasks on Master Roadmap
+With Phase 7 and Phase 8 fully implemented and verified, the only remaining items from the architectural blueprint are:
+1. **Phase 9: Docker Containerization (`Dockerfile`, `docker-compose.yml`)**:
+   * One-click container bundling Python, PyTorch, FAISS, Tesseract OCR runtime, and Vite frontend.
+2. **Phase 10: Local Mailbox / Gmail Ingestion (Stretch)**:
+   * Direct `.eml` / local file reader for candidate email threads.
 
-1. **Phase 7: Passive Local Domain & Impersonation Analysis (`security/domain_intel.py`)**:
-   * Offline Levenshtein & homoglyph distance detection against curated Fortune 500 domains (e.g., detecting `g00gle.com`, `strıpe.com` with dotless `ı`, `infosys-careers.site`).
-   * Local Shannon entropy calculation on hostnames to flag algorithmically generated disposable domains (DGAs) without making live DNS/whois lookups (preserving 100% offline privacy).
-2. **Phase 8: Browser Extension (Chrome Ingestion Interface) (`extension/`)**:
-   * Manifest V3 extension with context-menu ("Scan Selection with JobShield") and auto-parser for LinkedIn/Indeed/Gmail.
-   * Directly queries the local backend (`http://localhost:8000/predict`) and renders an in-page threat badge.
-3. **Phase 9: Docker Containerization (`Dockerfile`, `docker-compose.yml`)**:
-   * Single command (`docker compose up`) that packages Python, PyTorch, FAISS, Tesseract OCR binary, and Vite frontend into an isolated, reproducible container for demonstration or deployment.
-4. **Phase 10: Local Mailbox / Gmail Ingestion (Stretch)**:
-   * Direct `.eml` / local mailbox file ingestion utility.

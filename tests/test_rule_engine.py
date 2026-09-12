@@ -1,6 +1,7 @@
-# ============================================================
-# tests/test_rule_engine.py — Unit tests for Security Rule Engine
-# ============================================================
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
 import pytest
 from security.artifact_extractor import extract_artifacts
 from security.rule_engine import evaluate_security_rules
@@ -61,3 +62,15 @@ def test_legitimate_listing_no_false_findings():
     
     # Corporate email matches, no payments, no forms, no off-platform channels
     assert len(findings) == 0
+
+
+def test_typosquatting_domain_rule():
+    job_input = {"company": "Infosys", "title": "Developer"}
+    text = "Infosys is hiring! Submit application directly at https://inf0sys-careers.site."
+    artifacts = extract_artifacts(text)
+    findings = evaluate_security_rules(job_input, artifacts, text)
+    rule_ids = [f.rule_id for f in findings]
+    assert any("RULE_TYPOSQUATTING_DOMAIN" in rid or "RULE_BRAND_HIJACKING_DOMAIN" in rid for rid in rule_ids)
+    typo_finding = next(f for f in findings if "TYPOSQUATTING" in f.rule_id or "BRAND_HIJACKING" in f.rule_id)
+    assert typo_finding.severity in [RuleSeverity.CRITICAL, RuleSeverity.HIGH]
+

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JobShield Scanner</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>JobShield</span>
+      </div>
+      <div class="status-indicator" id="status-indicator">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">Checking...</span>
+      </div>
+    </div>
+
+    <!-- Quick Scan Textbox -->
+    <div class="scan-section">
+      <label for="scan-input" class="section-label">Quick Scan Content</label>
+      <textarea id="scan-input" rows="4" placeholder="Paste suspicious recruiter email, WhatsApp/Telegram message, or job text here..."></textarea>
+      
+      <div class="btn-group">
+        <button id="btn-scan-text" class="btn btn-primary">Scan Text</button>
+        <button id="btn-scan-page" class="btn btn-secondary">Scan Page</button>
+      </div>
+    </div>
+
+    <!-- Results Box (Hidden by default) -->
+    <div id="results-box" class="results-box" style="display: none;">
+      <div class="result-header">
+        <div>
+          <div class="result-label">Risk Severity Score</div>
+          <div class="result-score" id="result-score">--/100</div>
+        </div>
+        <div class="result-badge" id="result-badge">LOW</div>
+      </div>
+
+      <div class="result-action" id="result-action"></div>
+      
+      <div id="result-findings" class="result-findings"></div>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="popup-footer">
+      <a href="http://localhost:5173" target="_blank" class="footer-link">Open Web Dashboard ↗</a>
+      <span class="privacy-tag">🔒 100% Offline & Private</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

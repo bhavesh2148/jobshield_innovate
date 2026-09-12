@@ -638,13 +638,12 @@ A controlled diagnostic test (`scratch/diagnose_case.py`) verified the disparity
 | **Phase 5** | Threat Taxonomy | **COMPLETE** | `security/taxonomy.py` | Verified (CONFIRMED profiles + MITRE tags in `/predict`) |
 | **Phase 5** | MITRE ATT&CK Tags | **COMPLETE** | `api/schemas.py`, `frontend/ResultsPage.jsx` | Verified (7 technique IDs, 4 profiles, clickable UI chips) |
 | **Phase 6** | Local OCR Engine | **COMPLETE** | `ocr/engine.py` | Verified (`/ocr-ingest`, `/ocr-status`, Tesseract v5.4 installed & verified) |
-| **Phase 6** | OCR Frontend Flow | **COMPLETE** | `frontend/HomePage.jsx` | Verified (Drop→OCR→auto-populate + install banner) |
-| **Phase 7** | Passive Domain Analysis | *PLANNED* | `security/domain_intel.py` | Blueprint defined in Section 10.1 |
-| **Phase 8** | Chrome Extension | *PLANNED* | `extension/` | Blueprint defined in Section 10.2 |
+| **Phase 7** | Passive Domain Analysis | **COMPLETE** | `security/domain_intel.py` | **8/8 Tests PASS** (`test_domain_intel.py`, homoglyphs, DGA, typo-squats) |
+| **Phase 8** | Chrome Extension | **COMPLETE** | `extension/` | Verified (Manifest V3, scrapers, context-menu, in-page floating drawer) |
 | **Phase 9** | Docker Packaging | *PLANNED* | `Dockerfile`, `docker-compose.yml` | Blueprint defined in Section 10.3 |
 | **Phase 10**| Gmail Ingestion | *STRETCH* | `integrations/gmail.py` | Blueprint defined in Section 10.4 |
 
-**Complete Automated Test Suite Verification (20/20 Tests Passing + Full Integration Test):**
+**Complete Automated Test Suite Verification (34/34 Tests Passing + Full Integration Test):**
 ```
 tests/test_artifact_extractor.py::test_empty_input PASSED                [  5%]
 tests/test_artifact_extractor.py::test_email_extraction_and_trailing_punctuation PASSED [ 10%]

@@ -1,0 +1,48 @@
+{
+  "manifest_version": 3,
+  "name": "JobShield — In-Browser Recruitment Fraud Scanner",
+  "version": "1.0.0",
+  "description": "Real-time, privacy-first recruitment scam detection & MITRE ATT&CK security analysis on LinkedIn, Indeed, Glassdoor, and web pages.",
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "JobShield Scanner"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.linkedin.com/*",
+        "https://*.indeed.com/*",
+        "https://*.glassdoor.com/*",
+        "https://mail.google.com/*",
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["content/content_script.js"],
+      "css": ["content/content_styles.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}

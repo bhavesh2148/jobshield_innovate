@@ -206,4 +206,54 @@ def evaluate_security_rules(
             )
         )
 
+    # ─────────────────────────────────────────────────────────────
+    # RULE 6: PASSIVE DOMAIN INTEL & TYPO-SQUATTING / HOMOGLYPHS (Phase 7)
+    # ─────────────────────────────────────────────────────────────
+    from security.domain_intel import analyze_domain_intel
+    domains_to_evaluate = set()
+    for d in artifacts.domains:
+        domains_to_evaluate.add(d.value)
+    for u in artifacts.urls:
+        if u.domain:
+            domains_to_evaluate.add(u.domain)
+    for e in artifacts.emails:
+        if e.domain:
+            domains_to_evaluate.add(e.domain)
+
+    for dom in domains_to_evaluate:
+        intel_findings = analyze_domain_intel(dom, claimed_company=job_input.get("company", ""))
+        for intel in intel_findings:
+            rule_id_map = {
+                "HOMOGLYPH": "RULE_HOMOGLYPH_IMPERSONATION",
+                "TYPOSQUATTING": "RULE_TYPOSQUATTING_DOMAIN",
+                "BRAND_HIJACKING": "RULE_BRAND_HIJACKING_DOMAIN",
+                "HIGH_RISK_TLD_LURE": "RULE_HIGH_RISK_TLD_SPOOF",
+                "HIGH_ENTROPY_DGA": "RULE_DGA_HIGH_ENTROPY_DOMAIN",
+            }
+            category_map = {
+                "HOMOGLYPH": "BRAND_IMPERSONATION",
+                "TYPOSQUATTING": "BRAND_IMPERSONATION",
+                "BRAND_HIJACKING": "BRAND_IMPERSONATION",
+                "HIGH_RISK_TLD_LURE": "BRAND_IMPERSONATION",
+                "HIGH_ENTROPY_DGA": "MALICIOUS_INFRASTRUCTURE",
+            }
+            title_map = {
+                "HOMOGLYPH": "Internationalized Homoglyph Brand Impersonation",
+                "TYPOSQUATTING": "Brand Typo-Squatting Domain Detected",
+                "BRAND_HIJACKING": "Corporate Brand Keyword Hijacking",
+                "HIGH_RISK_TLD_LURE": "High-Risk TLD Corporate Impersonation",
+                "HIGH_ENTROPY_DGA": "Disposable / DGA Domain Detected",
+            }
+            findings.append(
+                SecurityFinding(
+                    id=f"FINDING-{intel.finding_type}-{dom.replace('.', '-').replace(':', '')[:12].upper()}",
+                    rule_id=rule_id_map.get(intel.finding_type, "RULE_DOMAIN_THREAT_INTEL"),
+                    title=title_map.get(intel.finding_type, "Suspicious Domain Infrastructure"),
+                    severity=RuleSeverity[intel.severity],
+                    description=intel.description,
+                    evidence_value=dom,
+                    category=category_map.get(intel.finding_type, "BRAND_IMPERSONATION")
+                )
+            )
+
     return findings

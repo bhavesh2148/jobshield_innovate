@@ -110,6 +110,14 @@ _MITRE_T1566_001 = MitreTechniqueTag(
     relevance="MEDIUM",
 )
 
+_MITRE_T1583_001 = MitreTechniqueTag(
+    technique_id="T1583.001",
+    technique_name="Acquire Infrastructure: Domains",
+    tactic="Resource Development",
+    url="https://attack.mitre.org/techniques/T1583/001/",
+    relevance="HIGH",
+)
+
 
 # ── Deterministic Profile Mapping ────────────────────────────
 # Maps security finding categories to canonical threat profiles.
@@ -130,12 +138,19 @@ _CATEGORY_TO_PROFILE: dict[str, dict] = {
         "profile_name": "Corporate Brand & Identity Impersonation",
         "description": (
             "Adversary exploits consumer trust in recognized enterprise brands (Google, Amazon, "
-            "Stripe, etc.) by creating recruitment personas that falsely claim affiliation. "
-            "Contact email domains are typically free consumer mail providers, inconsistent "
-            "with the claimed organization's authentic corporate mail infrastructure. "
-            "Classified as a social engineering / impersonation campaign."
+            "Infosys, Stripe, etc.) by creating recruitment personas that falsely claim affiliation, "
+            "using typo-squatted/homoglyph domains or free consumer mail providers."
         ),
-        "mitre_tags": [_MITRE_T1586_002, _MITRE_T1566_002],
+        "mitre_tags": [_MITRE_T1586_002, _MITRE_T1583_001, _MITRE_T1566_002],
+    },
+    "MALICIOUS_INFRASTRUCTURE": {
+        "attack_type": "MALICIOUS_INFRASTRUCTURE",
+        "profile_name": "Adversary Infrastructure & Typo-Squatting",
+        "description": (
+            "Adversary operates look-alike, homoglyph, or algorithmically generated domains (DGA) "
+            "to impersonate legitimate enterprise recruiting infrastructure and harvest candidate credentials."
+        ),
+        "mitre_tags": [_MITRE_T1583_001, _MITRE_T1566_002],
     },
     "CREDENTIAL_OR_PII_HARVESTING": {
         "attack_type": "CREDENTIAL_OR_PII_HARVESTING",
