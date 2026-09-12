@@ -1,0 +1,67 @@
+# ── Node & Frontend ─────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+.vite/
+frontend/.vite/
+.eslintcache
+
+# ── Python & Environments ───────────────────────────────────────
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+.Python
+build/
+*.spec
+venv/
+.venv/
+env/
+.pytest_cache/
+
+# ── IDE & Editor ────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Secrets & Environment Variables ─────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ── Logs & Scratch Files ─────────────────────────────────────────
+logs/
+*.log
+sec_out.txt
+*.tmp
+scratch/
+
+# ── Large Data Files & Datasets ─────────────────────────────────
+data/raw/*.csv
+data/raw/*.tsv
+data/raw/*.json
+data/processed/*.npy
+data/processed/*.parquet
+data/processed/*.pkl
+data/pseudo_labeled/*.npy
+
+# ── ML Model Weights & Large Binaries (>50MB / Git LFS) ──────────
+models/**/*.pkl
+models/**/*.bin
+models/**/*.safetensors
+models/**/*.pt
+models/**/*.onnx
+models/bert/model.safetensors
+memory/*.bin
+memory/*.pkl
+
+# ── OS Generated Files ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
