@@ -72,3 +72,122 @@ JobShield flagged it as **78.3% FAKE / HIGH RISK POSTURE** (Risk Score 78/100).
 * Even if DistilBERT rates a text as 90% benign (because the scammer copied legitimate text), the presence of a known fraudulent wallet or off-platform redirection must escalate the posture to **CRITICAL RISK (`DO_NOT_ENGAGE`)**.
 * The **Phase 4 Correlation Engine** codifies this non-linear override:
   $$\text{Risk} = \max(\text{ML\_Probability}, \text{Deterministic\_Severity\_Floor})$$
+
+---
+
+## 5. Local OCR Architecture & The Layered Ingestion Model
+
+### The Common Misconception: "OCR Understands Scams"
+A frequent assumption when integrating OCR is expecting the optical recognition engine itself to output structured entities (identifying "the recruiter's email", "the salary", or classifying whether the image is a scam).
+* **The Reality**: Tesseract OCR is strictly a **low-level 2D raster-to-text transcription engine**. It ingests a pixel array and outputs a UTF-8 character string. It has zero semantic awareness of cybersecurity, recruitment fraud, or entity schemas.
+
+### The 5-Stage Ingestion-to-Verdict Pipeline
+JobShield decomposes visual document inspection into a deterministic 5-stage funnel:
+
+```
+┌────────────────────────────────────────────────────────┐
+│  Stage 1: Local Ingestion (Tesseract OCR Engine)       │
+│  Transforms screenshot pixels → Raw Plaintext String   │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Raw Text
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│  Stage 2: Structural Ingestion Parser                  │
+│  Extracts checkboxes (☑/☐), Title, Company, Salary     │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Hydrated Text + Metadata
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│  Stage 3: Security Artifact Extractor                  │
+│  Extracts observable indicators: Emails, URLs, Phones, │
+│  Crypto wallets (BTC/ETH), P2P handles ($CashApp, etc) │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Artifact Report
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│  Stage 4: Security Rule & Correlation Engine           │
+│  Correlates signals: Advance-fee fraud, brand mismatch,│
+│  maps to MITRE ATT&CK techniques (T1657, T1566.002)    │
+└──────────────────────────┬─────────────────────────────┘
+                           │ Findings & Context
+                           ▼
+┌────────────────────────────────────────────────────────┐
+│  Stage 5: Hybrid ML Ensemble (DeBERTa + SBERT + Tab)   │
+│  Produces final Risk Score (0-100), Level & Action     │
+└────────────────────────────────────────────────────────┘
+```
+
+### Windows Privilege Isolation & Administrative MSI Extraction
+* **The Trap**: Standard Windows installers (`.exe` built with NSIS) embed `requestedExecutionLevel level="requireAdministrator"`. Executing them in automated or non-interactive environments triggers `OSError: [WinError 740] The requested operation requires elevation` or halts on hidden UAC prompts.
+* **The Solution**:
+  1. Use administrative network extraction: `msiexec /a 7z.msi /qn TARGETDIR=...` to extract portable extraction binaries without requiring root or admin privileges.
+  2. Use the portable extractor to unpack the Tesseract archive directly into the user-local profile: `~\AppData\Local\Programs\Tesseract-OCR`.
+  3. Pre-configure `ocr/engine.py` and `pytesseract` to discover the user-local binary path automatically.
+  4. This guarantees 100% offline, zero-admin installation and execution.
+
+---
+
+## 6. Cross-Platform Console Encoding & Non-ASCII Serialization
+
+### The Windows `cp1252` Encoding Hazard
+* **The Bug**: On Windows terminals, default standard I/O operates in legacy code pages (e.g., `cp1252`). When Python tests or CLI scripts print Unicode symbols (such as arrows `→`, ballot checkboxes `☑`, or mathematical notations), Python throws unhandled `UnicodeEncodeError: 'charmap' codec can't encode character '\u2192'`.
+* **The Fix**: Proactively reconfigure runtime standard streams at test and application entrypoints:
+  ```python
+  import sys
+  if hasattr(sys.stdout, "reconfigure"):
+      sys.stdout.reconfigure(encoding="utf-8")
+  if hasattr(sys.stderr, "reconfigure"):
+      sys.stderr.reconfigure(encoding="utf-8")
+  ```
+
+---
+
+## 7. Threat Taxonomy & MITRE ATT&CK Formalization
+
+### Moving Beyond Generic "Scam / Not Scam" Labels
+Generic classifications fail enterprise security analysts and confuse candidates. JobShield maps detected evidence directly to formal cyber threat tactics and techniques under the MITRE ATT&CK framework:
+1. **Advance-Fee Recruitment Fraud (`T1657` - Financial Theft)**:
+   * Trigger: Solicitation of deposits, background check fees, equipment fees, or payment transfers via CashApp, Zelle, Bitcoin, or Ethereum.
+2. **Corporate Brand & Identity Impersonation (`T1586.002` - Compromised Accounts / External Webmail)**:
+   * Trigger: High-prestige corporate brand claimed in job title/metadata while recruiter contact utilizes consumer webmail (`@gmail.com`, `@yahoo.com`, `@proton.me`).
+3. **Off-Platform Communication Redirection (`T1566.002` - Spearphishing Link / `T1598` - Phishing for Information)**:
+   * Trigger: Forcing applicants away from monitored corporate portals to private messaging channels (Telegram, Signal, WhatsApp) to evade enterprise logging and compliance.
+
+---
+
+## 8. Adaptive Defense: Drift Detection & Safe Pseudo-Labeling
+
+### Continuous Self-Training Guardrails
+* **The Problem**: Threat actor vocabulary shifts rapidly (new cryptocurrency tokens, novel phrasing for remote work lures).
+* **The Safeguard**: To prevent model degradation or feedback poisoning:
+  1. Samples are only pseudo-labeled if model confidence exceeds **95%**.
+  2. Samples with active deterministic security violations (`CRITICAL` or `HIGH` rule findings) are never admitted as benign pseudo-labels.
+  3. Concept drift is continuously tracked using a sliding-window distribution monitor (`api/drift.py`).
+  4. Retraining endpoints are protected with constant-time token comparison (`secrets.compare_digest`) to prevent timing side-channel attacks.
+
+---
+
+## 9. Comprehensive Project Status & Remaining Roadmap Assessment
+
+### What Is Fully Complete (Phases 0 through 6)
+* **Phase 0: Boundary Hardening & Security Foundations** (Pydantic validation, 4-tier threat policy, constant-time secrets).
+* **Phase 1: Dual-Interface Web Experience** (FastAPI backend + Vite React editorial dark-mode frontend with threat dossiers and SHAP visualization).
+* **Phase 2: Security Artifact Extraction** (Zero-leakage extraction of emails, URLs, domains, phones, crypto addresses, and P2P handles).
+* **Phase 3: Deterministic Rule Engine** (Propositional logic for advance-fee fraud, brand mismatch, off-platform redirection).
+* **Phase 4: Evidence & Risk Correlation Engine** (Non-linear risk escalation and unified finding synthesizers).
+* **Phase 5: Threat Taxonomy & MITRE ATT&CK Mapping** (Automated classification of threat profiles and MITRE tags).
+* **Phase 6: Local OCR Ingestion & Real-Time Parsing** (Offline Tesseract OCR + regex key-value/checkbox auto-enrichment).
+
+### What Remains on the Master Roadmap
+Beyond the **Chrome Browser Extension**, there were two additional components previously designed in the system blueprint:
+
+1. **Phase 7: Passive Local Domain & Impersonation Analysis (`security/domain_intel.py`)**:
+   * Offline Levenshtein & homoglyph distance detection against curated Fortune 500 domains (e.g., detecting `g00gle.com`, `strıpe.com` with dotless `ı`, `infosys-careers.site`).
+   * Local Shannon entropy calculation on hostnames to flag algorithmically generated disposable domains (DGAs) without making live DNS/whois lookups (preserving 100% offline privacy).
+2. **Phase 8: Browser Extension (Chrome Ingestion Interface) (`extension/`)**:
+   * Manifest V3 extension with context-menu ("Scan Selection with JobShield") and auto-parser for LinkedIn/Indeed/Gmail.
+   * Directly queries the local backend (`http://localhost:8000/predict`) and renders an in-page threat badge.
+3. **Phase 9: Docker Containerization (`Dockerfile`, `docker-compose.yml`)**:
+   * Single command (`docker compose up`) that packages Python, PyTorch, FAISS, Tesseract OCR binary, and Vite frontend into an isolated, reproducible container for demonstration or deployment.
+4. **Phase 10: Local Mailbox / Gmail Ingestion (Stretch)**:
+   * Direct `.eml` / local mailbox file ingestion utility.

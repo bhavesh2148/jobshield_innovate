@@ -637,7 +637,7 @@ A controlled diagnostic test (`scratch/diagnose_case.py`) verified the disparity
 | **Phase 4** | Unified Evidence Schema | **COMPLETE** | `api/schemas.py`, `api/main.py` | Verified (`unified_findings` & `assessment_reasons`) |
 | **Phase 5** | Threat Taxonomy | **COMPLETE** | `security/taxonomy.py` | Verified (CONFIRMED profiles + MITRE tags in `/predict`) |
 | **Phase 5** | MITRE ATT&CK Tags | **COMPLETE** | `api/schemas.py`, `frontend/ResultsPage.jsx` | Verified (7 technique IDs, 4 profiles, clickable UI chips) |
-| **Phase 6** | Local OCR Engine | **COMPLETE** | `ocr/engine.py` | Verified (`/ocr-ingest`, `/ocr-status`, 503 guide) |
+| **Phase 6** | Local OCR Engine | **COMPLETE** | `ocr/engine.py` | Verified (`/ocr-ingest`, `/ocr-status`, Tesseract v5.4 installed & verified) |
 | **Phase 6** | OCR Frontend Flow | **COMPLETE** | `frontend/HomePage.jsx` | Verified (Drop→OCR→auto-populate + install banner) |
 | **Phase 7** | Passive Domain Analysis | *PLANNED* | `security/domain_intel.py` | Blueprint defined in Section 10.1 |
 | **Phase 8** | Chrome Extension | *PLANNED* | `extension/` | Blueprint defined in Section 10.2 |
