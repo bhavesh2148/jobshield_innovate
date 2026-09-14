@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from loguru import logger
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sys
 sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -60,7 +60,7 @@ class SelfTrainer:
             return False
 
         sample = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "text_snippet": text[:300],
             "label": 1 if prediction == "FAKE" else 0,
             "confidence": confidence,
@@ -118,8 +118,8 @@ class SelfTrainer:
         try:
             import subprocess, sys
             scripts = [
-                "scripts/train_xgb_lr.py",
-                "scripts/tune_ensemble_weights.py",
+                "scripts/train_all.py",
+                "scripts/evaluate.py",
             ]
             for script in scripts:
                 logger.info(f"Running {script}...")

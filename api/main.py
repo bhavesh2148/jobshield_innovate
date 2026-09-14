@@ -129,7 +129,7 @@ async def predict(job: JobInput, background_tasks: BackgroundTasks):
     from security.rule_engine import evaluate_security_rules
 
     # Automatically enrich structured metadata if missing from raw description text
-    job_dict = enrich_job_dict(job.dict())
+    job_dict = enrich_job_dict(job.model_dump())
 
     # 1. Raw Artifact Extraction (preserves @, :, /, $, URLs, formatting)
     raw_content = "\n".join(filter(None, [
@@ -271,7 +271,7 @@ async def explain(job: JobInput):
         raise HTTPException(503, "Models not loaded yet")
 
     from utils.feature_extractor import extract_features_from_input, build_combined_text
-    job_dict = job.dict()
+    job_dict = job.model_dump()
     combined_text = build_combined_text(job_dict)
     structured_feats = extract_features_from_input(job_dict)
     result = AppState.ensemble.predict_single(combined_text, structured_feats)
@@ -295,8 +295,8 @@ async def explain(job: JobInput):
 @app.post("/feedback", response_model=FeedbackResponse)
 async def feedback(fb: FeedbackInput, background_tasks: BackgroundTasks):
     """Record user-reported incorrect prediction."""
-    AppState.feedback_store.append(fb.dict())
-    logger.info(f"Feedback received: {fb.dict()}")
+    AppState.feedback_store.append(fb.model_dump())
+    logger.info(f"Feedback received: {fb.model_dump()}")
     background_tasks.add_task(_save_feedback)
     return FeedbackResponse(
         message="Thank you for your feedback! It will help improve the system.",

@@ -32,7 +32,6 @@ env/
 
 # ── Secrets & Environment Variables ─────────────────────────────
 .env
-.env.*
 !.env.example
 
 # ── Logs & Scratch Files ─────────────────────────────────────────
@@ -51,15 +50,15 @@ data/processed/*.parquet
 data/processed/*.pkl
 data/pseudo_labeled/*.npy
 
-# ── ML Model Weights & Large Binaries (>50MB / Git LFS) ──────────
-models/**/*.pkl
-models/**/*.bin
-models/**/*.safetensors
+# ── ML Model Weights & Large Binaries (>50MB) ────────────────────
+# BERT model weights are huge — auto-downloaded from HuggingFace at runtime
+models/bert/model.safetensors
+models/bert/pytorch_model.bin
 models/**/*.pt
 models/**/*.onnx
-models/bert/model.safetensors
-memory/*.bin
-memory/*.pkl
+# NOTE: xgb_model.pkl (~1.5MB), lr_model.pkl (~1KB), faiss_index.bin (~1.3MB)
+# and faiss_metadata.pkl (~180KB) ARE committed — they are required for the
+# backend to start. Without them, AppState.init() fails on fresh clone.
 
 # ── OS Generated Files ───────────────────────────────────────────
 .DS_Store

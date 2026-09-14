@@ -220,4 +220,11 @@ def run():
         print(f"WARNING: {failed} check(s) failed -- review output above")
     print(DIVIDER)
 
-run()
+def test_full_pipeline():
+    """pytest-compatible entry point: runs the full JobShield integration suite."""
+    run()
+
+
+# Also allow direct execution: python tests/test_integration_all_phases.py
+if __name__ == "__main__":
+    run()

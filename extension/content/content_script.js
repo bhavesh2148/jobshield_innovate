@@ -159,12 +159,12 @@
     const badgeClass = `jobshield-badge-${riskLevel.toLowerCase()}`;
 
     // Collect findings & MITRE tags
-    const findings = data.unified_findings || [];
+    const findings = (data.unified_findings || []);
     const mitreTags = [];
-    if (data.taxonomy) {
+    if (data.taxonomy && Array.isArray(data.taxonomy)) {
       data.taxonomy.forEach(t => {
-        (t.mitre_tags || []).forEach(m => {
-          if (!mitreTags.some(existing => existing.technique_id === m.technique_id)) {
+        ((t && t.mitre_tags) || []).forEach(m => {
+          if (m && !mitreTags.some(existing => existing.technique_id === m.technique_id)) {
             mitreTags.push(m);
           }
         });
@@ -173,9 +173,9 @@
 
     // Collect artifacts
     const artifacts = data.artifacts || {};
-    const emailChips = (artifacts.emails || []).map(e => e.value);
-    const paymentChips = (artifacts.payment_identifiers || []).map(p => p.value);
-    const phoneChips = (artifacts.phones || []).map(ph => ph.value);
+    const emailChips = ((artifacts.emails || []).map(e => e && e.value)).filter(Boolean);
+    const paymentChips = ((artifacts.payment_identifiers || []).map(p => p && p.value)).filter(Boolean);
+    const phoneChips = ((artifacts.phones || []).map(ph => ph && ph.value)).filter(Boolean);
 
     drawer.innerHTML = `
       <div class="jobshield-header">

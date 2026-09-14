@@ -6,7 +6,6 @@
 torch>=2.0.0
 transformers>=4.35.0
 sentence-transformers>=2.2.2
-datasets>=2.14.0
 tokenizers>=0.14.0
 
 # Classical ML
@@ -34,11 +33,10 @@ fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
 pydantic>=2.4.0
 python-multipart>=0.0.6
-httpx>=0.25.0
 python-dotenv>=1.0.0          # Loads .env secrets at startup
 
 # Serialization & Storage
-joblib>=1.3.0
+# (joblib used internally by scikit-learn/xgboost — no direct import needed)
 
 # Monitoring & Logging
 loguru>=0.7.0
@@ -47,6 +45,5 @@ loguru>=0.7.0
 pytesseract>=0.3.13              # Python bindings for Tesseract OCR binary
 Pillow>=10.0.0                   # Image preprocessing (grayscale, sharpening)
 
-# Development
+# Development (install separately: pip install black pytest)
 pytest>=7.4.0
-black>=23.9.0
